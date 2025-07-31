@@ -5,6 +5,8 @@ TagManager:
   serializedVersion: 2
   tags:
   - Select
+  - WoodPlanks
+  - EntryZone
   layers:
   - Default
   - TransparentFX
