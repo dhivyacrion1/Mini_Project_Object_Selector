@@ -1,4 +1,5 @@
-using UnityEngine;
+﻿using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class ClickableInfo : MonoBehaviour
@@ -11,23 +12,25 @@ public class ClickableInfo : MonoBehaviour
 
     public Button infoMillingButton;
     public Button millingProcessButton;
+    public Button weldingButton;
 
     public GameObject infoPanelForMilling;
     public GameObject millingProcessPanel;
 
-    public GameObject[] weldingPanels; 
-
-    private bool clickedMilling = false;
-    private bool clickedWelding = false;
+    public GameObject[] weldingPanels;
+    public Button backButton;
 
     void Start()
     {
+        
         Panel.SetActive(false);
         infoPanelForMilling.SetActive(false);
         millingProcessPanel.SetActive(false);
 
         infoMillingButton.gameObject.SetActive(false);
         millingProcessButton.gameObject.SetActive(false);
+        weldingButton.gameObject.SetActive(false); 
+        backButton.gameObject.SetActive(false);
 
         foreach (GameObject panel in weldingPanels)
         {
@@ -35,9 +38,16 @@ public class ClickableInfo : MonoBehaviour
         }
 
         infoMillingButton.onClick.AddListener(ShowInfoMillingPanel);
-        millingProcessButton.onClick.AddListener(ShowMillingProcessPanel);
+        millingProcessButton.onClick.AddListener(OnBackButtonClicked);
     }
 
+    private void OnMouseDown()
+    {
+        ShowPanelOnly();
+        ShowMillingButtons();
+        ShowWeldingUI();
+
+    }
     void Update()
     {
         if (Input.GetMouseButtonDown(0))
@@ -51,44 +61,59 @@ public class ClickableInfo : MonoBehaviour
 
                 if (clickedObj == Cube)
                 {
-                    Panel.SetActive(true);
-                    clickedMilling = false;
-                    clickedWelding = false;
-                    HideWeldingPanels();
-                    return;
+                    ShowPanelOnly();
                 }
-
-                if (clickedObj == MillingMachine)
+                else if (clickedObj == MillingMachine)
                 {
-                    infoMillingButton.gameObject.SetActive(true);
-                    millingProcessButton.gameObject.SetActive(true);
-                    clickedMilling = true;
-                    clickedWelding = false;
-                    HideWeldingPanels();
-                    return;
+                    ShowMillingButtons();
                 }
-
-                if (clickedObj == WeldingMachine)
+                else if (clickedObj == WeldingMachine)
                 {
-                    foreach (GameObject panel in weldingPanels)
-                    {
-                        panel.SetActive(true);
-                    }
-                    clickedMilling = false;
-                    clickedWelding = true;
-                    HideMillingUI();
-                    return;
+                    ShowWeldingUI();
                 }
-
-               
-                HideAllUI();
+                else
+                {
+                    HideAllUI();
+                }
             }
             else
             {
-               
                 HideAllUI();
             }
         }
+    }
+    public void OnBackButtonClicked()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
+    }
+    void ShowPanelOnly()
+    {
+        Panel.SetActive(true);
+        HideMillingUI();
+        HideWeldingUI();
+    }
+
+    void ShowMillingButtons()
+    {
+        Panel.SetActive(true);
+        infoMillingButton.gameObject.SetActive(true);
+        millingProcessButton.gameObject.SetActive(true);
+        backButton.gameObject.SetActive(false);
+        weldingButton.gameObject.SetActive(false);
+        HideWeldingPanels();
+    }
+
+    void ShowWeldingUI()
+    {
+        Panel.SetActive(true);
+        HideMillingUI();
+        foreach (GameObject panel in weldingPanels)
+        {
+            panel.SetActive(true);
+        }
+
+        weldingButton.gameObject.SetActive(true); 
+        backButton.gameObject.SetActive(true);
     }
 
     void ShowInfoMillingPanel()
@@ -105,14 +130,17 @@ public class ClickableInfo : MonoBehaviour
 
     void HideMillingUI()
     {
-        if (clickedMilling)
-        {
-            infoMillingButton.gameObject.SetActive(false);
-            millingProcessButton.gameObject.SetActive(false);
-            infoPanelForMilling.SetActive(false);
-            millingProcessPanel.SetActive(false);
-            clickedMilling = false;
-        }
+        infoMillingButton.gameObject.SetActive(false);
+        millingProcessButton.gameObject.SetActive(false);
+        infoPanelForMilling.SetActive(false);
+        millingProcessPanel.SetActive(false);
+    }
+
+    void HideWeldingUI()
+    {
+        HideWeldingPanels();
+        weldingButton.gameObject.SetActive(false);
+        backButton.gameObject.SetActive(false);
     }
 
     void HideWeldingPanels()
@@ -121,14 +149,13 @@ public class ClickableInfo : MonoBehaviour
         {
             panel.SetActive(false);
         }
-        clickedWelding = false;
     }
 
     void HideAllUI()
     {
         Panel.SetActive(false);
         HideMillingUI();
-        HideWeldingPanels();
+        HideWeldingUI();
     }
 
     public void HidePanel()
